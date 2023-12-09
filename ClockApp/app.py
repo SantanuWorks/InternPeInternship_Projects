@@ -10,7 +10,7 @@ import winsound
 RED = "Red"
 LIME = "Lime"
 BLACK = "Black"
-WHITE = "Purple"
+PURPLE = "Purple"
 
 # Defining height and width of clock body
 HEIGHT = 400
@@ -38,33 +38,6 @@ ClockDial.pack(side = TOP)
 ClockDigitalDisplay = Label(ClockBody, font = ("ds-digital", 35), foreground = RED)
 ClockDigitalDisplay.pack(side = BOTTOM)
 
-'''
-
-Concept for clock design:
--------------------------
-Assuming clock as a circle on a graph, whose center is at (h, k)
-Assuming clock hands i.e. second hand, minute hand and hour hand as lines on graph
-
-Working of clock:
------------------
-Movement of clock hands can be realize as rotation of lines on circle around the center (h, k)
-For each second, minute and hour, hands will rotate about 6 deg
-
-angle = 6deg * time (sec/min/hr) 
-
-One end of the line is at (h, k) and other end of the line at (x, y)
-W.r.t each unit increase in time will change the (x, y) for the respective lines
-
-Here, x = radius x cos(angle) + h
-      y = radius x sin(angle) + k
-
-angle in radian, radius is length of the line/hand
-
-since, center is not at (0, 0), we have to add current center positions
-
-'''
-
-
 # Defining clock controller class
 # Provides contraints and logic working of clock
 class ClockController:
@@ -83,22 +56,22 @@ class ClockController:
     hr_theta = 0
     
     def DrawClockDial(self):
-        ClockDial.create_oval(10, 10, HEIGHT-10, WIDTH-10, fill = LIME, outline=WHITE)
-        ClockDial.create_oval(ClockController.h-5, ClockController.k-5, ClockController.h+5, ClockController.k+5, fill = WHITE, outline=LIME)
+        ClockDial.create_oval(10, 10, HEIGHT-10, WIDTH-10, fill = LIME, outline = PURPLE)
+        ClockDial.create_oval(ClockController.h-5, ClockController.k-5, ClockController.h+5, ClockController.k+5, fill = PURPLE, outline = LIME)
     
     def DrawNumbers(self):
         times = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         for a in range(0, 12):
             x = 170 * math.cos(math.radians(a * 30) - math.radians(90)) + ClockController.h
             y = 170 * math.sin(math.radians(a * 30) - math.radians(90)) + ClockController.k
-            ClockDial.create_text(x, y, text=str(times[a]), fill="black", font=('Helvetica 15 bold'))
+            ClockDial.create_text(x, y, text = str(times[a]), fill = PURPLE, font = ('Helvetica 13 bold'))
         
         for a in range(0, 60):
             if a%5 == 0:
                 continue
             x = 172 * math.cos(math.radians(a * 6) - math.radians(90)) + ClockController.h
             y = 172 * math.sin(math.radians(a * 6) - math.radians(90)) + ClockController.k
-            ClockDial.create_text(x, y, text=str("."), fill="black", font=('Helvetica 10 bold'))
+            ClockDial.create_text(x, y, text = str("."), fill = PURPLE, font = ('Helvetica 10 bold'))
 
     def GetCurrTimeVals(self):
         return int(strftime("%S")), int(strftime("%M")), int(strftime("%H"))
@@ -106,7 +79,7 @@ class ClockController:
     def CalRotationAngles(self, sec_val, min_val, hr_val):
         sec_rot_angle = math.radians(sec_val * 6) - math.radians(90)
         min_rot_angle = math.radians(min_val * 6) - math.radians(90)
-        hr_rot_angle = math.radians(hr_val * 6) - math.radians(90)
+        hr_rot_angle = math.radians(hr_val * 30) - math.radians(90)
         return sec_rot_angle, min_rot_angle, hr_rot_angle
 
     def CalXYOnCircle(self, radius, angle):
@@ -123,9 +96,9 @@ class ClockController:
         min_x, min_y = self.CalXYOnCircle(ClockController.min_rad, ClockController.min_theta)
         hr_x, hr_y = self.CalXYOnCircle(ClockController.hr_rad, ClockController.hr_theta)
 
-        ClockDial.create_line(ClockController.h, ClockController.k, sec_x, sec_y, fill = WHITE, smooth = 1)
-        ClockDial.create_line(ClockController.h, ClockController.k, min_x, min_y, fill = WHITE, smooth = True, width = 3)
-        ClockDial.create_line(ClockController.h, ClockController.k, hr_x, hr_y, fill = WHITE, smooth = True, width = 5)
+        ClockDial.create_line(ClockController.h, ClockController.k, sec_x, sec_y, fill = PURPLE, smooth = 1)
+        ClockDial.create_line(ClockController.h, ClockController.k, min_x, min_y, fill = PURPLE, smooth = True, width = 3)
+        ClockDial.create_line(ClockController.h, ClockController.k, hr_x, hr_y, fill = PURPLE, smooth = True, width = 5)
 
     def DrawPhysicalClock(self):
         # Draw the clock dial
@@ -145,10 +118,7 @@ class ClockController:
         timestr = strftime("%H : %M : %S %p")
         
         # Set time on display
-        ClockDigitalDisplay.config(text = timestr)
-
-        # Clock sound
-        winsound.Beep(890, 90)
+        ClockDigitalDisplay.config(text = timestr, fg=PURPLE)
 
         # Update time each second
         ClockBody.after(1000, self.Run)
