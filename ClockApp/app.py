@@ -85,7 +85,6 @@ class ClockController:
     #     sec_y = ClockController.sec_rad * math.sin(ClockController.sec_theta) + ClockController.k
 
     def DrawClockHands(self):
-        print("Hey")
         second = int(strftime("%S"))
         minute = int(strftime("%M"))
         hour = int(strftime("%H"))
@@ -103,7 +102,7 @@ class ClockController:
         hr_x = ClockController.hrr_rad * math.cos(ClockController.hr_theta) + ClockController.h
         hr_y = ClockController.hrr_rad * math.sin(ClockController.hr_theta) + ClockController.h
 
-        ClockDial.create_line(ClockController.h, ClockController.k, sec_x, sec_y, smooth = True)
+        ClockDial.create_line(ClockController.h, ClockController.k, sec_x, sec_y, smooth = True, width = 2)
         ClockDial.create_line(ClockController.h, ClockController.k, min_x, min_y, smooth = True)
         ClockDial.create_line(ClockController.h, ClockController.k, hr_x, hr_y, smooth = True)
 
