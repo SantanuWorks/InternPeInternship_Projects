@@ -1,6 +1,7 @@
 # Import required modules
 from tkinter import * # For GUI
 import random # for random alloction of food
+import time
 
 # App 
 class SnakeGameApp(Tk):
@@ -112,7 +113,8 @@ class SnakeGameApp(Tk):
     
     # stop the game
     def stop(self):
-        self.snakeboard.delete(ALL) 
+        time.sleep(5)
+        # self.snakeboard.delete(ALL) 
         self.snakeboard.create_text(self.WIDTH/2, self.HEIGHT/2, font=('arial', 40), text="Game Over!", fill="red", tag="gameover") 
 
     # set new direction

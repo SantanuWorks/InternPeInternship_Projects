@@ -1,15 +1,15 @@
-from tkinter import *
-from PIL import Image, ImageTk
-import random
-import time
-from threading import Timer
+# import required modules
+from tkinter import * # for GUI
+from PIL import Image, ImageTk # to show image 
+import random # for random guess
+from threading import Timer # set timing to methods
 
 '''
 Credit: Welcome Page Image
 https://images.app.goo.gl/EGGjzVoy1NnwyMo66
 
 '''
-
+# Player class contains all the details about player of the game
 class Player():
     player1 = ""
     player2 = ""
@@ -31,7 +31,10 @@ class Player():
     winner = ""
 
     def __init__(self, pltype):
+        # Get player type ( 1 player or 2 player )
         Player.pltype = pltype
+
+        # set player properties according to the given player type
         if( Player.pltype == 1 ):
             Player.player2 = "Computer"
             Player.player1 = "You"
@@ -47,7 +50,8 @@ class Player():
         Player.currplsym = Player.pl1symbol
         Player.currturnmsg = Player.pl1turnmsg
         GamePage.turnlabel.config(text=Player.currturnmsg)
-
+    
+    # switch player turns
     def switchplayer():
         if Player.currpl == 1:
             Player.currpl = 2
@@ -60,8 +64,10 @@ class Player():
             Player.currplsym = Player.pl1symbol
             Player.currturnmsg = Player.pl1turnmsg
 
+# Class to show the result of the game
 class ResultPage(Frame):
     result = None
+    # Show the page
     def __init__(self, container, controller):
         super().__init__(container)
         self.config(background="#a6c1ff")
@@ -71,11 +77,14 @@ class ResultPage(Frame):
         back = Button(self, text="Main Menu", font=("Roboto", 12, "bold"), width=10, pady=3, border=0, relief='sunken', background="lime", foreground="white", command= lambda: controller.switchpage(StartPage))
         back.place(relx=0.5, rely=0.55, anchor=CENTER)
 
+    # Set the result
     def setresult(result):
         ResultPage.result.config(text = result)
 
+# Defines the game page
 class GamePage(Frame):
     turnlabel = None
+    # Show the page
     def __init__(self, container, controller):
         super().__init__(container)
         self.controller = controller
@@ -87,6 +96,7 @@ class GamePage(Frame):
         back.place(relx=0.15, rely=0.07, anchor=CENTER)
         GamePage.turnlabel = Label(self, text="", font=("Roboto", 11, "bold"), background="#a6c1ff")
         GamePage.turnlabel.place(relx=0.5, rely=0.25, anchor=CENTER)
+        # Initialize all the parameters of the game
         self.winflag = False
         self.selectedcells = []
         self.boardstates = [ "", "", "", "", "", "", "", "", "" ]
@@ -94,6 +104,7 @@ class GamePage(Frame):
         self.winstates = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
         self.drawboard(board)
     
+    # clear all the parameters after quiting 
     def cleargamestates(self):
         self.boardstates = [ "", "", "", "", "", "", "", "", "" ]
         self.winflag = False
@@ -101,12 +112,14 @@ class GamePage(Frame):
         for each in self.cellobjs:
             each.config(text="")
 
+    # Terminaate the current game 
     def terminate(self, page):
         # self.cleargamestates()
         self.controller.switchpage(page)
         t = Timer(0.5, self.cleargamestates)
         t.start()
 
+    # Check for win 
     def checkwin(self):
         for i in range(8):
             index = self.winstates[i]
@@ -119,10 +132,12 @@ class GamePage(Frame):
                 return True
         return False
     
+    # Get results of winner
     def getwinresult(self):
         winmsg = Player.winner + " Won!"
         return winmsg
 
+    # For 1 player - computer guess
     def getcomputermove(self):
         while True:
             choose = random.randint(0, 8)
@@ -131,39 +146,54 @@ class GamePage(Frame):
                 break
         self.activecell(choose)
         return choose
-
+    
+    # Provides game actions duing game play
     def gameactions(self, plotindex):
+        # for 2 player mode
         if Player.pltype == 2 :
             self.activecell(plotindex)
+        # for 1 player mode
         else:
-            if len(self.selectedcells) == 9 or self.winflag == True:
-                pass
+            # check for draw 
+            if len(self.selectedcells) == 9:
+                ResultPage.setresult("It's a tie!")
+                self.cleargamestates()
+                self.controller.switchpage(ResultPage)
+            # if not draw continue with player switching
             else:
+                # when player 2 turn - computer guess
                 if Player.currpl == 2:
                     n = self.getcomputermove()
                     self.selectedcells.append(n)
                     self.activecell(n)
+                # for player 1 guess wait
                 else:
                     self.selectedcells.append(plotindex)
                     self.activecell(plotindex)
                     t = Timer(1, lambda: self.gameactions(0))
                     t.start()
                 self.selectedcells = list(set(self.selectedcells))
+        # check for the win 
         if self.checkwin():
+            # move to next page and set result
             result = self.getwinresult()
             ResultPage.setresult(result)
             self.cleargamestates()
             self.controller.switchpage(ResultPage)
             return
+        # switch player if no draw no win
         Player.switchplayer()
+        # set turn message
         GamePage.turnlabel.config(text=Player.currturnmsg)
-            
+    
+    # scratch on the cell - O or X
     def activecell(self, x):
         if self.boardstates[x] != "":
             return
         self.boardstates[x] = Player.currplsym
         self.cellobjs[x].config( text = Player.currplsym )
 
+    # draw the board for play
     def drawboard(self, container):
         count = -1
         for i in range(3):
@@ -173,7 +203,7 @@ class GamePage(Frame):
                 cell.config(height = 1, width = 3)
                 cell.grid(row = i, column = j, sticky = "nsew")
                 self.cellobjs[count] = cell
-
+# Start page for user options and game modes
 class StartPage(Frame):
     def __init__(self, container, controller):
         super().__init__(container)
@@ -196,10 +226,12 @@ class StartPage(Frame):
         twoplayer = Button(downpane, text="2 Player", font=("Roboto", 12, "bold"), width=10, pady=5, border=0, relief='sunken', background="lime", foreground="white", command= lambda: self.start(controller, GamePage, 2))
         twoplayer.place(relx=0.7, rely=0.6, anchor=CENTER)
     
+    # start the game
     def start(self, controller, page, pltype):
         Player(pltype)
         controller.switchpage(page)
 
+# App
 class TicTacToeApp(Tk):
     def __init__(self):
         super().__init__()
@@ -215,10 +247,11 @@ class TicTacToeApp(Tk):
             page.grid(column=0, row=0, sticky="nsew")
         self.switchpage(StartPage)
 
+    # switch pages
     def switchpage(self, pageclass):
         page = self.pages[pageclass]
         page.tkraise()
-
+# start the app
 if __name__ == "__main__":
     app = TicTacToeApp()
     app.mainloop()
