@@ -113,8 +113,7 @@ class SnakeGameApp(Tk):
     
     # stop the game
     def stop(self):
-        time.sleep(5)
-        # self.snakeboard.delete(ALL) 
+        self.snakeboard.delete(ALL) 
         self.snakeboard.create_text(self.WIDTH/2, self.HEIGHT/2, font=('arial', 40), text="Game Over!", fill="red", tag="gameover") 
 
     # set new direction
